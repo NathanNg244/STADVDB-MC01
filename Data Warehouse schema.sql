@@ -31,15 +31,18 @@ CREATE TABLE DimTransactionType (
     bank VARCHAR(100),
     account VARCHAR(50)
 );
-
 CREATE TABLE DimDistrict (
     district_key INT AUTO_INCREMENT PRIMARY KEY,
     district_id INT NOT NULL UNIQUE,
     district_name VARCHAR(100),
     region VARCHAR(100),
     inhabitants INT,
+    nocities INT,
+    ratio_urbaninhabitants DECIMAL(5,2),
     average_salary DECIMAL(15,2),
-    unemployment DOUBLE
+    unemployment DECIMAL(5,2),
+    noentrepreneur INT,
+    nocrimes INT
 );
 
 -- -------------------------------------------------------
