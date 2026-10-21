@@ -33,3 +33,20 @@ JOIN DimDistrict r ON r.district_key = f.district_key
 GROUP BY r.region, r.district_name WITH ROLLUP
 ORDER BY GROUPING(r.region), r.region,
          GROUPING(r.district_name), total_volume DESC;
+
+-- Slice (Year = 1997)
+
+SELECT r.region,
+       t.type,
+       COUNT(*)                          AS trans_count,
+       ROUND(SUM(f.amount), 2)           AS total_volume,
+       ROUND(AVG(f.amount), 2)           AS avg_amount,
+       ROUND(MAX(f.amount), 2)           AS largest_trans
+FROM FactTransaction f
+JOIN DimDate            d ON d.date_key = f.date_key
+JOIN DimDistrict        r ON r.district_key = f.district_key
+JOIN DimTransactionType t ON t.transaction_type_key = f.transaction_type_key
+WHERE d.year_number = 1997                       
+GROUP BY r.region, t.type
+HAVING COUNT(*) >= 100
+ORDER BY r.region, total_volume DESC;
