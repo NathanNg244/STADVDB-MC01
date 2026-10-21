@@ -18,26 +18,21 @@ st.title("Financial Data Dashboard")
 # --------------------------------------------------
 # DATABASE CONNECTION
 # --------------------------------------------------
-# Update these values to match your local MySQL setup.
-DB_USER = "root"
-DB_PASSWORD = "12345678"
-DB_HOST = "localhost"
-DB_PORT = 3306
-DB_NAME = "financial_dw"
-
-
 @st.cache_resource
 def get_engine():
+    db = st.secrets["mysql"]
+
     connection_url = (
-        f"mysql+pymysql://{quote_plus(DB_USER)}:"
-        f"{quote_plus(DB_PASSWORD)}@{DB_HOST}:"
-        f"{DB_PORT}/{DB_NAME}"
-    )
-    return create_engine(
-        connection_url,
-        pool_pre_ping=True
+        f"mysql+pymysql://{quote_plus(db['user'])}:"
+        f"{quote_plus(db['password'])}@{db['host']}:"
+        f"{db['port']}/{db['database']}"
     )
 
+    return create_engine(
+        connection_url,
+        pool_pre_ping=True,
+        connect_args={"ssl": {}}
+    )
 
 # --------------------------------------------------
 # TEST DATABASE CONNECTION
@@ -56,8 +51,8 @@ except Exception as error:
     st.error("Could not connect to the MySQL database.")
     st.code(str(error))
     st.info(
-        "Check your MySQL username, password, port, "
-        "and that MySQL Server is running."
+        "Check your Aiven connection details, Streamlit Secrets, "
+        "and database availability."
     )
     st.stop()
 
