@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, text
 from urllib.parse import quote_plus
 
 # --------------------------------------------------
-# 1. PAGE CONFIGURATION
+# PAGE CONFIGURATION
 # --------------------------------------------------
 st.set_page_config(
     page_title="Financial Dashboard",
@@ -16,7 +16,7 @@ st.set_page_config(
 st.title("Financial Data Dashboard")
 
 # --------------------------------------------------
-# 2. DATABASE CONNECTION
+# DATABASE CONNECTION
 # --------------------------------------------------
 # Update these values to match your local MySQL setup.
 DB_USER = "root"
@@ -40,7 +40,7 @@ def get_engine():
 
 
 # --------------------------------------------------
-# 3. TEST DATABASE CONNECTION
+# TEST DATABASE CONNECTION
 # --------------------------------------------------
 try:
     engine = get_engine()
@@ -63,7 +63,7 @@ except Exception as error:
 
 
 # --------------------------------------------------
-# 4. QUERY 1 - INTERACTIVE TRANSACTION TRENDS
+# QUERY 1 - INTERACTIVE TRANSACTION TRENDS
 # --------------------------------------------------
 st.divider()
 st.header("Transaction Trends Over Time")
@@ -272,3 +272,8 @@ try:
 except Exception as error:
     st.error("An error occurred while generating Transaction Trends.")
     st.code(str(error))
+
+
+# --------------------------------------------------
+#  OTHER QUERIES 
+# --------------------------------------------------
