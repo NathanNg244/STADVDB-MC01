@@ -58,7 +58,7 @@ except Exception as error:
 
 
 # --------------------------------------------------
-# QUERY 1 - INTERACTIVE TRANSACTION TRENDS
+# QUERY 1 - TRANSACTION TRENDS
 # --------------------------------------------------
 st.divider()
 st.header("Transaction Trends Over Time")
