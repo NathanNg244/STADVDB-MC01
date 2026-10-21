@@ -1,0 +1,1946 @@
+{
+  "label": "before",
+  "database": "financial_dw",
+  "mysql_version": "8.0.46",
+  "note": "Full MySQL EXPLAIN FORMAT=JSON plans for detailed inspection.",
+  "plans": [
+    {
+      "query_name": "Time Roll Up",
+      "scenario": "all_years",
+      "parameters": "all available years",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "677258.81"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": true,
+              "buffer_result": {
+                "using_temporary_table": true,
+                "nested_loop": [
+                  {
+                    "table": {
+                      "table_name": "t",
+                      "access_type": "ALL",
+                      "possible_keys": [
+                        "PRIMARY"
+                      ],
+                      "rows_examined_per_scan": 7474,
+                      "rows_produced_per_join": 7474,
+                      "filtered": "100.00",
+                      "cost_info": {
+                        "read_cost": "24.25",
+                        "eval_cost": "747.40",
+                        "prefix_cost": "771.65",
+                        "data_read_per_join": "11M"
+                      },
+                      "used_columns": [
+                        "transaction_type_key",
+                        "type"
+                      ]
+                    }
+                  },
+                  {
+                    "table": {
+                      "table_name": "f",
+                      "access_type": "ref",
+                      "possible_keys": [
+                        "fk_fact_transaction_type",
+                        "idx_fact_date_amount"
+                      ],
+                      "key": "fk_fact_transaction_type",
+                      "used_key_parts": [
+                        "transaction_type_key"
+                      ],
+                      "key_length": "4",
+                      "ref": [
+                        "financial_dw.t.transaction_type_key"
+                      ],
+                      "rows_examined_per_scan": 129,
+                      "rows_produced_per_join": 966410,
+                      "filtered": "100.00",
+                      "cost_info": {
+                        "read_cost": "241602.56",
+                        "eval_cost": "96641.02",
+                        "prefix_cost": "339015.23",
+                        "data_read_per_join": "36M"
+                      },
+                      "used_columns": [
+                        "transaction_key",
+                        "date_key",
+                        "transaction_type_key",
+                        "amount"
+                      ]
+                    }
+                  },
+                  {
+                    "table": {
+                      "table_name": "d",
+                      "access_type": "eq_ref",
+                      "possible_keys": [
+                        "PRIMARY"
+                      ],
+                      "key": "PRIMARY",
+                      "used_key_parts": [
+                        "date_key"
+                      ],
+                      "key_length": "4",
+                      "ref": [
+                        "financial_dw.f.date_key"
+                      ],
+                      "rows_examined_per_scan": 1,
+                      "rows_produced_per_join": 966410,
+                      "filtered": "100.00",
+                      "cost_info": {
+                        "read_cost": "241602.56",
+                        "eval_cost": "96641.02",
+                        "prefix_cost": "677258.81",
+                        "data_read_per_join": "81M"
+                      },
+                      "used_columns": [
+                        "date_key",
+                        "month_number",
+                        "month_name",
+                        "quarter_number",
+                        "year_number"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "Time Roll Up",
+      "scenario": "single_year",
+      "parameters": "year=1993",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "71022.19"
+          },
+          "ordering_operation": {
+            "using_temporary_table": true,
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_filesort": true,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "d",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 2191,
+                    "rows_produced_per_join": 219,
+                    "filtered": "10.00",
+                    "cost_info": {
+                      "read_cost": "199.44",
+                      "eval_cost": "21.91",
+                      "prefix_cost": "221.35",
+                      "data_read_per_join": "18K"
+                    },
+                    "used_columns": [
+                      "date_key",
+                      "month_number",
+                      "month_name",
+                      "quarter_number",
+                      "year_number"
+                    ],
+                    "attached_condition": "(`financial_dw`.`d`.`year_number` = 1993)"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_transaction_type",
+                      "idx_fact_date_amount"
+                    ],
+                    "key": "idx_fact_date_amount",
+                    "used_key_parts": [
+                      "date_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.d.date_key"
+                    ],
+                    "rows_examined_per_scan": 461,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "35621.77",
+                      "data_read_per_join": "3M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "date_key",
+                      "transaction_type_key",
+                      "amount"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "t",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "transaction_type_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.transaction_type_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "71022.19",
+                      "data_read_per_join": "155M"
+                    },
+                    "used_columns": [
+                      "transaction_type_key",
+                      "type"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "Time Roll Up",
+      "scenario": "two_recent_years",
+      "parameters": "years=[1997, 1998]",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "141823.03"
+          },
+          "ordering_operation": {
+            "using_temporary_table": true,
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_filesort": true,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "d",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 2191,
+                    "rows_produced_per_join": 438,
+                    "filtered": "20.00",
+                    "cost_info": {
+                      "read_cost": "177.53",
+                      "eval_cost": "43.82",
+                      "prefix_cost": "221.35",
+                      "data_read_per_join": "37K"
+                    },
+                    "used_columns": [
+                      "date_key",
+                      "month_number",
+                      "month_name",
+                      "quarter_number",
+                      "year_number"
+                    ],
+                    "attached_condition": "(`financial_dw`.`d`.`year_number` in (1997,1998))"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_transaction_type",
+                      "idx_fact_date_amount"
+                    ],
+                    "key": "idx_fact_date_amount",
+                    "used_key_parts": [
+                      "date_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.d.date_key"
+                    ],
+                    "rows_examined_per_scan": 461,
+                    "rows_produced_per_join": 202288,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "50572.03",
+                      "eval_cost": "20228.81",
+                      "prefix_cost": "71022.19",
+                      "data_read_per_join": "7M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "date_key",
+                      "transaction_type_key",
+                      "amount"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "t",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "transaction_type_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.transaction_type_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 202288,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "50572.03",
+                      "eval_cost": "20228.81",
+                      "prefix_cost": "141823.03",
+                      "data_read_per_join": "311M"
+                    },
+                    "used_columns": [
+                      "transaction_type_key",
+                      "type"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "District Roll Up",
+      "scenario": "all_years",
+      "parameters": "all available years",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "341575.90"
+          },
+          "ordering_operation": {
+            "using_temporary_table": true,
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_filesort": true,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "r",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 76,
+                    "rows_produced_per_join": 76,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "0.25",
+                      "eval_cost": "7.60",
+                      "prefix_cost": "7.85",
+                      "data_read_per_join": "62K"
+                    },
+                    "used_columns": [
+                      "district_key",
+                      "district_name",
+                      "region"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_district"
+                    ],
+                    "key": "fk_fact_district",
+                    "used_key_parts": [
+                      "district_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.r.district_key"
+                    ],
+                    "rows_examined_per_scan": 14418,
+                    "rows_produced_per_join": 1095780,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "231990.00",
+                      "eval_cost": "109578.05",
+                      "prefix_cost": "341575.90",
+                      "data_read_per_join": "41M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "account_key",
+                      "district_key",
+                      "amount"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "District Roll Up",
+      "scenario": "single_year",
+      "parameters": "year=1993",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "71022.19"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": true,
+              "buffer_result": {
+                "using_temporary_table": true,
+                "nested_loop": [
+                  {
+                    "table": {
+                      "table_name": "d",
+                      "access_type": "ALL",
+                      "possible_keys": [
+                        "PRIMARY"
+                      ],
+                      "rows_examined_per_scan": 2191,
+                      "rows_produced_per_join": 219,
+                      "filtered": "10.00",
+                      "cost_info": {
+                        "read_cost": "199.44",
+                        "eval_cost": "21.91",
+                        "prefix_cost": "221.35",
+                        "data_read_per_join": "18K"
+                      },
+                      "used_columns": [
+                        "date_key",
+                        "year_number"
+                      ],
+                      "attached_condition": "(`financial_dw`.`d`.`year_number` = 1993)"
+                    }
+                  },
+                  {
+                    "table": {
+                      "table_name": "f",
+                      "access_type": "ref",
+                      "possible_keys": [
+                        "fk_fact_district",
+                        "idx_fact_date_amount"
+                      ],
+                      "key": "idx_fact_date_amount",
+                      "used_key_parts": [
+                        "date_key"
+                      ],
+                      "key_length": "4",
+                      "ref": [
+                        "financial_dw.d.date_key"
+                      ],
+                      "rows_examined_per_scan": 461,
+                      "rows_produced_per_join": 101144,
+                      "filtered": "100.00",
+                      "cost_info": {
+                        "read_cost": "25286.01",
+                        "eval_cost": "10114.41",
+                        "prefix_cost": "35621.77",
+                        "data_read_per_join": "3M"
+                      },
+                      "used_columns": [
+                        "transaction_key",
+                        "date_key",
+                        "account_key",
+                        "district_key",
+                        "amount"
+                      ]
+                    }
+                  },
+                  {
+                    "table": {
+                      "table_name": "r",
+                      "access_type": "eq_ref",
+                      "possible_keys": [
+                        "PRIMARY"
+                      ],
+                      "key": "PRIMARY",
+                      "used_key_parts": [
+                        "district_key"
+                      ],
+                      "key_length": "4",
+                      "ref": [
+                        "financial_dw.f.district_key"
+                      ],
+                      "rows_examined_per_scan": 1,
+                      "rows_produced_per_join": 101144,
+                      "filtered": "100.00",
+                      "cost_info": {
+                        "read_cost": "25286.01",
+                        "eval_cost": "10114.41",
+                        "prefix_cost": "71022.19",
+                        "data_read_per_join": "81M"
+                      },
+                      "used_columns": [
+                        "district_key",
+                        "district_name",
+                        "region"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "District Roll Up",
+      "scenario": "two_recent_years",
+      "parameters": "years=[1997, 1998]",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "141823.03"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": true,
+              "buffer_result": {
+                "using_temporary_table": true,
+                "nested_loop": [
+                  {
+                    "table": {
+                      "table_name": "d",
+                      "access_type": "ALL",
+                      "possible_keys": [
+                        "PRIMARY"
+                      ],
+                      "rows_examined_per_scan": 2191,
+                      "rows_produced_per_join": 438,
+                      "filtered": "20.00",
+                      "cost_info": {
+                        "read_cost": "177.53",
+                        "eval_cost": "43.82",
+                        "prefix_cost": "221.35",
+                        "data_read_per_join": "37K"
+                      },
+                      "used_columns": [
+                        "date_key",
+                        "year_number"
+                      ],
+                      "attached_condition": "(`financial_dw`.`d`.`year_number` in (1997,1998))"
+                    }
+                  },
+                  {
+                    "table": {
+                      "table_name": "f",
+                      "access_type": "ref",
+                      "possible_keys": [
+                        "fk_fact_district",
+                        "idx_fact_date_amount"
+                      ],
+                      "key": "idx_fact_date_amount",
+                      "used_key_parts": [
+                        "date_key"
+                      ],
+                      "key_length": "4",
+                      "ref": [
+                        "financial_dw.d.date_key"
+                      ],
+                      "rows_examined_per_scan": 461,
+                      "rows_produced_per_join": 202288,
+                      "filtered": "100.00",
+                      "cost_info": {
+                        "read_cost": "50572.03",
+                        "eval_cost": "20228.81",
+                        "prefix_cost": "71022.19",
+                        "data_read_per_join": "7M"
+                      },
+                      "used_columns": [
+                        "transaction_key",
+                        "date_key",
+                        "account_key",
+                        "district_key",
+                        "amount"
+                      ]
+                    }
+                  },
+                  {
+                    "table": {
+                      "table_name": "r",
+                      "access_type": "eq_ref",
+                      "possible_keys": [
+                        "PRIMARY"
+                      ],
+                      "key": "PRIMARY",
+                      "used_key_parts": [
+                        "district_key"
+                      ],
+                      "key_length": "4",
+                      "ref": [
+                        "financial_dw.f.district_key"
+                      ],
+                      "rows_examined_per_scan": 1,
+                      "rows_produced_per_join": 202288,
+                      "filtered": "100.00",
+                      "cost_info": {
+                        "read_cost": "50572.03",
+                        "eval_cost": "20228.81",
+                        "prefix_cost": "141823.03",
+                        "data_read_per_join": "163M"
+                      },
+                      "used_columns": [
+                        "district_key",
+                        "district_name",
+                        "region"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "Slice",
+      "scenario": "year_1997_original",
+      "parameters": "year=1997; count>=100",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "106422.61"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": false,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "d",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 2191,
+                    "rows_produced_per_join": 219,
+                    "filtered": "10.00",
+                    "cost_info": {
+                      "read_cost": "199.44",
+                      "eval_cost": "21.91",
+                      "prefix_cost": "221.35",
+                      "data_read_per_join": "18K"
+                    },
+                    "used_columns": [
+                      "date_key",
+                      "year_number"
+                    ],
+                    "attached_condition": "(`financial_dw`.`d`.`year_number` = 1997)"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_transaction_type",
+                      "fk_fact_district",
+                      "idx_fact_date_amount"
+                    ],
+                    "key": "idx_fact_date_amount",
+                    "used_key_parts": [
+                      "date_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.d.date_key"
+                    ],
+                    "rows_examined_per_scan": 461,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "35621.77",
+                      "data_read_per_join": "3M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "date_key",
+                      "transaction_type_key",
+                      "district_key",
+                      "amount"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "r",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "district_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.district_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "71022.19",
+                      "data_read_per_join": "81M"
+                    },
+                    "used_columns": [
+                      "district_key",
+                      "region"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "t",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "transaction_type_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.transaction_type_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "106422.61",
+                      "data_read_per_join": "155M"
+                    },
+                    "used_columns": [
+                      "transaction_type_key",
+                      "type"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "Slice",
+      "scenario": "earliest_year",
+      "parameters": "year=1993; count>=100",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "106422.61"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": false,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "d",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 2191,
+                    "rows_produced_per_join": 219,
+                    "filtered": "10.00",
+                    "cost_info": {
+                      "read_cost": "199.44",
+                      "eval_cost": "21.91",
+                      "prefix_cost": "221.35",
+                      "data_read_per_join": "18K"
+                    },
+                    "used_columns": [
+                      "date_key",
+                      "year_number"
+                    ],
+                    "attached_condition": "(`financial_dw`.`d`.`year_number` = 1993)"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_transaction_type",
+                      "fk_fact_district",
+                      "idx_fact_date_amount"
+                    ],
+                    "key": "idx_fact_date_amount",
+                    "used_key_parts": [
+                      "date_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.d.date_key"
+                    ],
+                    "rows_examined_per_scan": 461,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "35621.77",
+                      "data_read_per_join": "3M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "date_key",
+                      "transaction_type_key",
+                      "district_key",
+                      "amount"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "r",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "district_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.district_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "71022.19",
+                      "data_read_per_join": "81M"
+                    },
+                    "used_columns": [
+                      "district_key",
+                      "region"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "t",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "transaction_type_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.transaction_type_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "106422.61",
+                      "data_read_per_join": "155M"
+                    },
+                    "used_columns": [
+                      "transaction_type_key",
+                      "type"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "Slice",
+      "scenario": "latest_year",
+      "parameters": "year=1998; count>=100",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "106422.61"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": false,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "d",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 2191,
+                    "rows_produced_per_join": 219,
+                    "filtered": "10.00",
+                    "cost_info": {
+                      "read_cost": "199.44",
+                      "eval_cost": "21.91",
+                      "prefix_cost": "221.35",
+                      "data_read_per_join": "18K"
+                    },
+                    "used_columns": [
+                      "date_key",
+                      "year_number"
+                    ],
+                    "attached_condition": "(`financial_dw`.`d`.`year_number` = 1998)"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_transaction_type",
+                      "fk_fact_district",
+                      "idx_fact_date_amount"
+                    ],
+                    "key": "idx_fact_date_amount",
+                    "used_key_parts": [
+                      "date_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.d.date_key"
+                    ],
+                    "rows_examined_per_scan": 461,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "35621.77",
+                      "data_read_per_join": "3M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "date_key",
+                      "transaction_type_key",
+                      "district_key",
+                      "amount"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "r",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "district_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.district_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "71022.19",
+                      "data_read_per_join": "81M"
+                    },
+                    "used_columns": [
+                      "district_key",
+                      "region"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "t",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "transaction_type_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.transaction_type_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 101144,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "25286.01",
+                      "eval_cost": "10114.41",
+                      "prefix_cost": "106422.61",
+                      "data_read_per_join": "155M"
+                    },
+                    "used_columns": [
+                      "transaction_type_key",
+                      "type"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "Dice",
+      "scenario": "original_filters",
+      "parameters": "original SQL filters",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "33214.54"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": false,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "d",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 2191,
+                    "rows_produced_per_join": 87,
+                    "filtered": "4.00",
+                    "cost_info": {
+                      "read_cost": "212.59",
+                      "eval_cost": "8.76",
+                      "prefix_cost": "221.35",
+                      "data_read_per_join": "7K"
+                    },
+                    "used_columns": [
+                      "date_key",
+                      "quarter_number",
+                      "year_number"
+                    ],
+                    "attached_condition": "((`financial_dw`.`d`.`year_number` in (1996,1997)) and (`financial_dw`.`d`.`quarter_number` in (1,2)))"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_account",
+                      "fk_fact_transaction_type",
+                      "fk_fact_district",
+                      "idx_fact_date_amount"
+                    ],
+                    "key": "idx_fact_date_amount",
+                    "used_key_parts": [
+                      "date_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.d.date_key"
+                    ],
+                    "rows_examined_per_scan": 461,
+                    "rows_produced_per_join": 40457,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "10114.41",
+                      "eval_cost": "4045.76",
+                      "prefix_cost": "14381.52",
+                      "data_read_per_join": "1M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "date_key",
+                      "account_key",
+                      "transaction_type_key",
+                      "district_key",
+                      "amount"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "r",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "district_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.district_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 12137,
+                    "filtered": "30.00",
+                    "cost_info": {
+                      "read_cost": "10114.41",
+                      "eval_cost": "1213.73",
+                      "prefix_cost": "28541.69",
+                      "data_read_per_join": "9M"
+                    },
+                    "used_columns": [
+                      "district_key",
+                      "region"
+                    ],
+                    "attached_condition": "(`financial_dw`.`r`.`region` in ('Prague','south Moravia','north Moravia'))"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "a",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "account_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.account_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 1213,
+                    "filtered": "10.00",
+                    "cost_info": {
+                      "read_cost": "3034.32",
+                      "eval_cost": "121.37",
+                      "prefix_cost": "32789.74",
+                      "data_read_per_join": "256K"
+                    },
+                    "used_columns": [
+                      "account_key",
+                      "frequency"
+                    ],
+                    "attached_condition": "(`financial_dw`.`a`.`frequency` = 'Weekly')"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "t",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "transaction_type_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.transaction_type_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 242,
+                    "filtered": "20.00",
+                    "cost_info": {
+                      "read_cost": "303.43",
+                      "eval_cost": "24.27",
+                      "prefix_cost": "33214.54",
+                      "data_read_per_join": "383K"
+                    },
+                    "used_columns": [
+                      "transaction_type_key",
+                      "type"
+                    ],
+                    "attached_condition": "(`financial_dw`.`t`.`type` in ('Credit','Debit (Withdrawal)'))"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "Dice",
+      "scenario": "recent_years",
+      "parameters": "years=[1997, 1998]; original quarter/region/type/frequency filters",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "33214.54"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": false,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "d",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 2191,
+                    "rows_produced_per_join": 87,
+                    "filtered": "4.00",
+                    "cost_info": {
+                      "read_cost": "212.59",
+                      "eval_cost": "8.76",
+                      "prefix_cost": "221.35",
+                      "data_read_per_join": "7K"
+                    },
+                    "used_columns": [
+                      "date_key",
+                      "quarter_number",
+                      "year_number"
+                    ],
+                    "attached_condition": "((`financial_dw`.`d`.`year_number` in (1997,1998)) and (`financial_dw`.`d`.`quarter_number` in (1,2)))"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_account",
+                      "fk_fact_transaction_type",
+                      "fk_fact_district",
+                      "idx_fact_date_amount"
+                    ],
+                    "key": "idx_fact_date_amount",
+                    "used_key_parts": [
+                      "date_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.d.date_key"
+                    ],
+                    "rows_examined_per_scan": 461,
+                    "rows_produced_per_join": 40457,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "10114.41",
+                      "eval_cost": "4045.76",
+                      "prefix_cost": "14381.52",
+                      "data_read_per_join": "1M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "date_key",
+                      "account_key",
+                      "transaction_type_key",
+                      "district_key",
+                      "amount"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "r",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "district_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.district_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 12137,
+                    "filtered": "30.00",
+                    "cost_info": {
+                      "read_cost": "10114.41",
+                      "eval_cost": "1213.73",
+                      "prefix_cost": "28541.69",
+                      "data_read_per_join": "9M"
+                    },
+                    "used_columns": [
+                      "district_key",
+                      "region"
+                    ],
+                    "attached_condition": "(`financial_dw`.`r`.`region` in ('Prague','south Moravia','north Moravia'))"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "a",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "account_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.account_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 1213,
+                    "filtered": "10.00",
+                    "cost_info": {
+                      "read_cost": "3034.32",
+                      "eval_cost": "121.37",
+                      "prefix_cost": "32789.74",
+                      "data_read_per_join": "256K"
+                    },
+                    "used_columns": [
+                      "account_key",
+                      "frequency"
+                    ],
+                    "attached_condition": "(`financial_dw`.`a`.`frequency` = 'Weekly')"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "t",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "transaction_type_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.transaction_type_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 242,
+                    "filtered": "20.00",
+                    "cost_info": {
+                      "read_cost": "303.43",
+                      "eval_cost": "24.27",
+                      "prefix_cost": "33214.54",
+                      "data_read_per_join": "383K"
+                    },
+                    "used_columns": [
+                      "transaction_type_key",
+                      "type"
+                    ],
+                    "attached_condition": "(`financial_dw`.`t`.`type` in ('Credit','Debit (Withdrawal)'))"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "Dice",
+      "scenario": "quarters_3_4",
+      "parameters": "original years; quarters=[3, 4]",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "33214.54"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": false,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "d",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 2191,
+                    "rows_produced_per_join": 87,
+                    "filtered": "4.00",
+                    "cost_info": {
+                      "read_cost": "212.59",
+                      "eval_cost": "8.76",
+                      "prefix_cost": "221.35",
+                      "data_read_per_join": "7K"
+                    },
+                    "used_columns": [
+                      "date_key",
+                      "quarter_number",
+                      "year_number"
+                    ],
+                    "attached_condition": "((`financial_dw`.`d`.`year_number` in (1996,1997)) and (`financial_dw`.`d`.`quarter_number` in (3,4)))"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_account",
+                      "fk_fact_transaction_type",
+                      "fk_fact_district",
+                      "idx_fact_date_amount"
+                    ],
+                    "key": "idx_fact_date_amount",
+                    "used_key_parts": [
+                      "date_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.d.date_key"
+                    ],
+                    "rows_examined_per_scan": 461,
+                    "rows_produced_per_join": 40457,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "10114.41",
+                      "eval_cost": "4045.76",
+                      "prefix_cost": "14381.52",
+                      "data_read_per_join": "1M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "date_key",
+                      "account_key",
+                      "transaction_type_key",
+                      "district_key",
+                      "amount"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "r",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "district_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.district_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 12137,
+                    "filtered": "30.00",
+                    "cost_info": {
+                      "read_cost": "10114.41",
+                      "eval_cost": "1213.73",
+                      "prefix_cost": "28541.69",
+                      "data_read_per_join": "9M"
+                    },
+                    "used_columns": [
+                      "district_key",
+                      "region"
+                    ],
+                    "attached_condition": "(`financial_dw`.`r`.`region` in ('Prague','south Moravia','north Moravia'))"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "a",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "account_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.account_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 1213,
+                    "filtered": "10.00",
+                    "cost_info": {
+                      "read_cost": "3034.32",
+                      "eval_cost": "121.37",
+                      "prefix_cost": "32789.74",
+                      "data_read_per_join": "256K"
+                    },
+                    "used_columns": [
+                      "account_key",
+                      "frequency"
+                    ],
+                    "attached_condition": "(`financial_dw`.`a`.`frequency` = 'Weekly')"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "t",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "transaction_type_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.transaction_type_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 242,
+                    "filtered": "20.00",
+                    "cost_info": {
+                      "read_cost": "303.43",
+                      "eval_cost": "24.27",
+                      "prefix_cost": "33214.54",
+                      "data_read_per_join": "383K"
+                    },
+                    "used_columns": [
+                      "transaction_type_key",
+                      "type"
+                    ],
+                    "attached_condition": "(`financial_dw`.`t`.`type` in ('Credit','Debit (Withdrawal)'))"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "Dice",
+      "scenario": "single_region",
+      "parameters": "region='central Bohemia'; other original filters",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "30099.31"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": false,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "d",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 2191,
+                    "rows_produced_per_join": 87,
+                    "filtered": "4.00",
+                    "cost_info": {
+                      "read_cost": "212.59",
+                      "eval_cost": "8.76",
+                      "prefix_cost": "221.35",
+                      "data_read_per_join": "7K"
+                    },
+                    "used_columns": [
+                      "date_key",
+                      "quarter_number",
+                      "year_number"
+                    ],
+                    "attached_condition": "((`financial_dw`.`d`.`year_number` in (1996,1997)) and (`financial_dw`.`d`.`quarter_number` in (1,2)))"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_account",
+                      "fk_fact_transaction_type",
+                      "fk_fact_district",
+                      "idx_fact_date_amount"
+                    ],
+                    "key": "idx_fact_date_amount",
+                    "used_key_parts": [
+                      "date_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.d.date_key"
+                    ],
+                    "rows_examined_per_scan": 461,
+                    "rows_produced_per_join": 40457,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "10114.41",
+                      "eval_cost": "4045.76",
+                      "prefix_cost": "14381.52",
+                      "data_read_per_join": "1M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "date_key",
+                      "account_key",
+                      "transaction_type_key",
+                      "district_key",
+                      "amount"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "r",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "district_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.district_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 4045,
+                    "filtered": "10.00",
+                    "cost_info": {
+                      "read_cost": "10114.41",
+                      "eval_cost": "404.58",
+                      "prefix_cost": "28541.69",
+                      "data_read_per_join": "3M"
+                    },
+                    "used_columns": [
+                      "district_key",
+                      "region"
+                    ],
+                    "attached_condition": "(`financial_dw`.`r`.`region` = 'central Bohemia')"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "a",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "account_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.account_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 404,
+                    "filtered": "10.00",
+                    "cost_info": {
+                      "read_cost": "1011.44",
+                      "eval_cost": "40.46",
+                      "prefix_cost": "29957.70",
+                      "data_read_per_join": "85K"
+                    },
+                    "used_columns": [
+                      "account_key",
+                      "frequency"
+                    ],
+                    "attached_condition": "(`financial_dw`.`a`.`frequency` = 'Weekly')"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "t",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "transaction_type_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.transaction_type_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 80,
+                    "filtered": "20.00",
+                    "cost_info": {
+                      "read_cost": "101.14",
+                      "eval_cost": "8.09",
+                      "prefix_cost": "30099.31",
+                      "data_read_per_join": "127K"
+                    },
+                    "used_columns": [
+                      "transaction_type_key",
+                      "type"
+                    ],
+                    "attached_condition": "(`financial_dw`.`t`.`type` in ('Credit','Debit (Withdrawal)'))"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "query_name": "Dice",
+      "scenario": "alternate_frequency",
+      "parameters": "frequency='Every Transaction'; other original filters",
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost_info": {
+            "query_cost": "33214.54"
+          },
+          "ordering_operation": {
+            "using_filesort": true,
+            "grouping_operation": {
+              "using_temporary_table": true,
+              "using_filesort": false,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "d",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows_examined_per_scan": 2191,
+                    "rows_produced_per_join": 87,
+                    "filtered": "4.00",
+                    "cost_info": {
+                      "read_cost": "212.59",
+                      "eval_cost": "8.76",
+                      "prefix_cost": "221.35",
+                      "data_read_per_join": "7K"
+                    },
+                    "used_columns": [
+                      "date_key",
+                      "quarter_number",
+                      "year_number"
+                    ],
+                    "attached_condition": "((`financial_dw`.`d`.`year_number` in (1996,1997)) and (`financial_dw`.`d`.`quarter_number` in (1,2)))"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "f",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "fk_fact_account",
+                      "fk_fact_transaction_type",
+                      "fk_fact_district",
+                      "idx_fact_date_amount"
+                    ],
+                    "key": "idx_fact_date_amount",
+                    "used_key_parts": [
+                      "date_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.d.date_key"
+                    ],
+                    "rows_examined_per_scan": 461,
+                    "rows_produced_per_join": 40457,
+                    "filtered": "100.00",
+                    "cost_info": {
+                      "read_cost": "10114.41",
+                      "eval_cost": "4045.76",
+                      "prefix_cost": "14381.52",
+                      "data_read_per_join": "1M"
+                    },
+                    "used_columns": [
+                      "transaction_key",
+                      "date_key",
+                      "account_key",
+                      "transaction_type_key",
+                      "district_key",
+                      "amount"
+                    ]
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "r",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "district_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.district_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 12137,
+                    "filtered": "30.00",
+                    "cost_info": {
+                      "read_cost": "10114.41",
+                      "eval_cost": "1213.73",
+                      "prefix_cost": "28541.69",
+                      "data_read_per_join": "9M"
+                    },
+                    "used_columns": [
+                      "district_key",
+                      "region"
+                    ],
+                    "attached_condition": "(`financial_dw`.`r`.`region` in ('Prague','south Moravia','north Moravia'))"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "a",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "account_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.account_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 1213,
+                    "filtered": "10.00",
+                    "cost_info": {
+                      "read_cost": "3034.32",
+                      "eval_cost": "121.37",
+                      "prefix_cost": "32789.74",
+                      "data_read_per_join": "256K"
+                    },
+                    "used_columns": [
+                      "account_key",
+                      "frequency"
+                    ],
+                    "attached_condition": "(`financial_dw`.`a`.`frequency` = 'Every Transaction')"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "t",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "key": "PRIMARY",
+                    "used_key_parts": [
+                      "transaction_type_key"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "financial_dw.f.transaction_type_key"
+                    ],
+                    "rows_examined_per_scan": 1,
+                    "rows_produced_per_join": 242,
+                    "filtered": "20.00",
+                    "cost_info": {
+                      "read_cost": "303.43",
+                      "eval_cost": "24.27",
+                      "prefix_cost": "33214.54",
+                      "data_read_per_join": "383K"
+                    },
+                    "used_columns": [
+                      "transaction_type_key",
+                      "type"
+                    ],
+                    "attached_condition": "(`financial_dw`.`t`.`type` in ('Credit','Debit (Withdrawal)'))"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

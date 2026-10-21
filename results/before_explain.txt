@@ -1,0 +1,379 @@
+EXPLAIN SUMMARY REPORT — BEFORE
+Database: financial_dw (8.0.46)
+The text file contains concise summaries. Full JSON plans are in the companion JSON file.
+
+==========================================================================================
+Time Roll Up / all_years
+Parameters: all available years
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 677258.81
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used               | Rows estimate | Filtered | Prefix cost
+------+--------+--------------------------+---------------+----------+------------
+t     | ALL    | (none)                   | 7474          | 100.00   | 771.65     
+f     | ref    | fk_fact_transaction_type | 129           | 100.00   | 339015.23  
+d     | eq_ref | PRIMARY                  | 1             | 100.00   | 677258.81  
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+Time Roll Up / single_year
+Parameters: year=1993
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 71022.19
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 10.00    | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 35621.77   
+t     | eq_ref | PRIMARY              | 1             | 100.00   | 71022.19   
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+Time Roll Up / two_recent_years
+Parameters: years=[1997, 1998]
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 141823.03
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 20.00    | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 71022.19   
+t     | eq_ref | PRIMARY              | 1             | 100.00   | 141823.03  
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+District Roll Up / all_years
+Parameters: all available years
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 341575.90
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used       | Rows estimate | Filtered | Prefix cost
+------+--------+------------------+---------------+----------+------------
+r     | ALL    | (none)           | 76            | 100.00   | 7.85       
+f     | ref    | fk_fact_district | 14418         | 100.00   | 341575.90  
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+District Roll Up / single_year
+Parameters: year=1993
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 71022.19
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 10.00    | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 35621.77   
+r     | eq_ref | PRIMARY              | 1             | 100.00   | 71022.19   
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+District Roll Up / two_recent_years
+Parameters: years=[1997, 1998]
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 141823.03
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 20.00    | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 71022.19   
+r     | eq_ref | PRIMARY              | 1             | 100.00   | 141823.03  
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+Slice / year_1997_original
+Parameters: year=1997; count>=100
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 106422.61
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 10.00    | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 35621.77   
+r     | eq_ref | PRIMARY              | 1             | 100.00   | 71022.19   
+t     | eq_ref | PRIMARY              | 1             | 100.00   | 106422.61  
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+Slice / earliest_year
+Parameters: year=1993; count>=100
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 106422.61
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 10.00    | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 35621.77   
+r     | eq_ref | PRIMARY              | 1             | 100.00   | 71022.19   
+t     | eq_ref | PRIMARY              | 1             | 100.00   | 106422.61  
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+Slice / latest_year
+Parameters: year=1998; count>=100
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 106422.61
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 10.00    | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 35621.77   
+r     | eq_ref | PRIMARY              | 1             | 100.00   | 71022.19   
+t     | eq_ref | PRIMARY              | 1             | 100.00   | 106422.61  
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+Dice / original_filters
+Parameters: original SQL filters
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 33214.54
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 4.00     | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 14381.52   
+r     | eq_ref | PRIMARY              | 1             | 30.00    | 28541.69   
+a     | eq_ref | PRIMARY              | 1             | 10.00    | 32789.74   
+t     | eq_ref | PRIMARY              | 1             | 20.00    | 33214.54   
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+Dice / recent_years
+Parameters: years=[1997, 1998]; original quarter/region/type/frequency filters
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 33214.54
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 4.00     | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 14381.52   
+r     | eq_ref | PRIMARY              | 1             | 30.00    | 28541.69   
+a     | eq_ref | PRIMARY              | 1             | 10.00    | 32789.74   
+t     | eq_ref | PRIMARY              | 1             | 20.00    | 33214.54   
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+Dice / quarters_3_4
+Parameters: original years; quarters=[3, 4]
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 33214.54
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 4.00     | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 14381.52   
+r     | eq_ref | PRIMARY              | 1             | 30.00    | 28541.69   
+a     | eq_ref | PRIMARY              | 1             | 10.00    | 32789.74   
+t     | eq_ref | PRIMARY              | 1             | 20.00    | 33214.54   
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+Dice / single_region
+Parameters: region='central Bohemia'; other original filters
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 30099.31
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 4.00     | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 14381.52   
+r     | eq_ref | PRIMARY              | 1             | 10.00    | 28541.69   
+a     | eq_ref | PRIMARY              | 1             | 10.00    | 29957.70   
+t     | eq_ref | PRIMARY              | 1             | 20.00    | 30099.31   
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
+
+==========================================================================================
+Dice / alternate_frequency
+Parameters: frequency='Every Transaction'; other original filters
+EXPLAIN FORMAT=JSON
+------------------------------------------------------------------------------------------
+PLAN SUMMARY
+------------------------------------------------------------------------------
+Estimated query cost : 33214.54
+Temporary table      : YES
+Filesort             : YES
+
+TABLE ACCESS
+------------------------------------------------------------------------------
+Table | Access | Index used           | Rows estimate | Filtered | Prefix cost
+------+--------+----------------------+---------------+----------+------------
+d     | ALL    | (none)               | 2191          | 4.00     | 221.35     
+f     | ref    | idx_fact_date_amount | 461           | 100.00   | 14381.52   
+r     | eq_ref | PRIMARY              | 1             | 30.00    | 28541.69   
+a     | eq_ref | PRIMARY              | 1             | 10.00    | 32789.74   
+t     | eq_ref | PRIMARY              | 1             | 20.00    | 33214.54   
+
+INTERPRETATION NOTES
+------------------------------------------------------------------------------
+- Estimated query cost is an optimizer estimate, not milliseconds.
+- ALL usually indicates a full table scan; ref/eq_ref commonly indicate indexed lookup.
+- Temporary-table/filesort flags are investigation leads, not proof of a bottleneck by themselves.
+- Row counts are estimates. Use the benchmark CSV for measured execution time.
