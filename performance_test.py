@@ -120,7 +120,7 @@ def load_olap_queries(sql_file: Path = SQL_FILE) -> list[str]:
         if statement.upper().startswith("USE "):
             continue
         # The benchmark file is expected to contain SELECT queries only.
-        if not statement.upper().startswith("SELECT"):
+        if not statement.upper().startswith(("SELECT", "WITH")):
             raise ValueError(
                 "Unexpected non-SELECT statement in the OLAP SQL file: "
                 + statement.splitlines()[0][:100]
@@ -136,33 +136,142 @@ def load_olap_queries(sql_file: Path = SQL_FILE) -> list[str]:
     return statements
 
 
-def inject_where_before_group_by(sql: str, predicate: str) -> str:
-    """Insert a WHERE condition before GROUP BY in an unfiltered query."""
+def _find_top_level_keyword(sql: str, pattern: str):
+    """Find a SQL keyword outside parentheses and quoted strings."""
     import re
 
-    match = re.search(r"\bGROUP\s+BY\b", sql, flags=re.IGNORECASE)
-    if not match:
-        raise ValueError("Could not find GROUP BY in query variant.")
-    return sql[:match.start()] + f"WHERE {predicate}\n" + sql[match.start():]
+    keyword = re.compile(pattern, flags=re.IGNORECASE)
+    depth = 0
+    quote = None
+    i = 0
+
+    while i < len(sql):
+        char = sql[i]
+
+        if quote is not None:
+            # SQL supports doubled quote characters. Backslash escaping is
+            # also handled for single/double-quoted string literals.
+            if quote in ("'", '"') and char == "\\":
+                i += 2
+                continue
+            if char == quote:
+                if i + 1 < len(sql) and sql[i + 1] == quote:
+                    i += 2
+                    continue
+                quote = None
+            i += 1
+            continue
+
+        if char in ("'", '"', "`"):
+            quote = char
+            i += 1
+            continue
+        if char == "(":
+            depth += 1
+            i += 1
+            continue
+        if char == ")":
+            depth = max(0, depth - 1)
+            i += 1
+            continue
+
+        if depth == 0:
+            match = keyword.match(sql, i)
+            if match:
+                return match
+
+        i += 1
+
+    return None
+
+
+def inject_where_before_group_by(sql: str, predicate: str) -> str:
+    """Add a filter to the outer query, not to a nested CTE/subquery."""
+    group_match = _find_top_level_keyword(sql, r"\bGROUP\s+BY\b")
+    if not group_match:
+        raise ValueError(
+            "Could not find an outer-level GROUP BY in query variant."
+        )
+
+    prefix = sql[:group_match.start()]
+    existing_where = _find_top_level_keyword(prefix, r"\bWHERE\b")
+    connector = "AND" if existing_where else "WHERE"
+
+    return (
+        prefix.rstrip()
+        + f"\n{connector} {predicate}\n"
+        + sql[group_match.start():]
+    )
 
 
 def add_date_filter_to_district_rollup(sql: str, years: list[int]) -> str:
-    """Add a date dimension join and a year filter to a District Roll Up variant."""
+    """Add a DimDate join and year filter to a District Roll Up query.
+
+    Supports common table spellings and aliases, including
+    ``FROM facttransaction f`` and ``FROM facttransaction AS ft``.
+    """
     import re
 
-    sql, count = re.subn(
-        r"(\bFROM\s+FactTransaction\s+f\b)",
-        r"\1\nJOIN DimDate d ON d.date_key = f.date_key\n",
-        sql,
-        count=1,
+    # The original pattern only accepted the exact text
+    # ``FROM FactTransaction f``. This pattern also accepts optional
+    # backticks, an optional schema prefix, and an optional AS keyword.
+    from_pattern = re.compile(
+        r"\bFROM\s+"
+        r"(?:`?[A-Za-z_][A-Za-z0-9_]*`?\s*\.\s*)?"
+        r"`?FactTransaction`?"
+        r"(?:\s+(?:AS\s+)?"
+        r"(?P<alias>(?!WHERE\b|JOIN\b|LEFT\b|RIGHT\b|INNER\b|"
+        r"CROSS\b|GROUP\b|HAVING\b|ORDER\b|LIMIT\b|ON\b|"
+        r"UNION\b)[A-Za-z_][A-Za-z0-9_]*))?",
         flags=re.IGNORECASE,
     )
-    if count != 1:
-        raise ValueError("Could not add DimDate join to District Roll Up.")
+    match = from_pattern.search(sql)
+    if match is None:
+        from_lines = [
+            line.strip() for line in sql.splitlines()
+            if re.search(r"\bFROM\b", line, flags=re.IGNORECASE)
+        ]
+        details = " | ".join(from_lines[:3]) or "No FROM clause found."
+        raise ValueError(
+            "Could not locate a FactTransaction FROM clause in the "
+            "District Roll Up query. FROM clauses found: " + details
+        )
+
+    fact_alias = match.group("alias") or "FactTransaction"
+
+    # Reuse an existing DimDate join if the query already has one.
+    date_join_pattern = re.compile(
+        r"\bJOIN\s+(?:`?[A-Za-z_][A-Za-z0-9_]*`?\s*\.\s*)?"
+        r"`?DimDate`?\s+(?:AS\s+)?(?P<alias>[A-Za-z_][A-Za-z0-9_]*)",
+        flags=re.IGNORECASE,
+    )
+    existing_date_join = date_join_pattern.search(sql)
+
+    if existing_date_join:
+        date_alias = existing_date_join.group("alias")
+    else:
+        date_alias = "d"
+        join_clause = (
+            f"\nJOIN DimDate {date_alias} "
+            f"ON {date_alias}.date_key = {fact_alias}.date_key\n"
+        )
+        sql = sql[:match.end()] + join_clause + sql[match.end():]
 
     values = ", ".join(str(int(year)) for year in years)
-    return inject_where_before_group_by(
-        sql, f"d.year_number IN ({values})\n"
+    predicate = f"{date_alias}.year_number IN ({values})"
+
+    # Add the filter before GROUP BY. If the query already has a WHERE
+    # before that point, use AND instead of introducing a second WHERE.
+    group_match = re.search(r"\bGROUP\s+BY\b", sql, flags=re.IGNORECASE)
+    if not group_match:
+        raise ValueError("Could not find GROUP BY in District Roll Up query.")
+
+    prefix = sql[:group_match.start()]
+    connector = "AND" if re.search(r"\bWHERE\b", prefix, flags=re.IGNORECASE) else "WHERE"
+    return (
+        prefix.rstrip()
+        + f"\n{connector} {predicate}\n"
+        + sql[group_match.start():]
     )
 
 
@@ -236,22 +345,55 @@ def replace_region_list(sql: str, regions: list[str]) -> str:
     return result
 
 
-def replace_frequency_list(sql: str, frequencies: list[str]) -> str:
+def replace_frequency_list(sql: str, frequencies: list[str]) -> str | None:
+    """Replace a frequency filter, regardless of its table alias.
+
+    Returns None when the Dice query does not have a recognizable frequency
+    predicate. Frequency benchmarking is optional, so the caller can skip that
+    workload rather than failing the entire benchmark.
+    """
     import re
 
     if not frequencies:
-        return sql
+        return None
+
     values = ", ".join(sql_string_literal(item) for item in frequencies)
-    result, count = re.subn(
-        r"(\ba\.frequency\s+IN\s*\()[^)]*(\))",
-        lambda match: match.group(1) + values + match.group(2),
-        sql,
-        count=1,
+
+    # Match either `a.frequency IN (...)`, `da.frequency IN (...)`, or
+    # an unqualified `frequency IN (...)`; allow optional SQL backticks.
+    in_pattern = re.compile(
+        r"(?P<prefix>(?:`?[A-Za-z_][A-Za-z0-9_]*`?\s*\.\s*)?"
+        r"`?frequency`?\s+IN\s*\()"
+        r"(?P<values>[^)]*)"
+        r"(?P<suffix>\))",
         flags=re.IGNORECASE,
     )
-    if count != 1:
-        raise ValueError("Could not replace the Dice frequency filter.")
-    return result
+    result, count = in_pattern.subn(
+        lambda match: match.group("prefix") + values + match.group("suffix"),
+        sql,
+        count=1,
+    )
+    if count == 1:
+        return result
+
+    # Also support equality filters such as `da.frequency = 'Weekly'`.
+    # This alternate workload supplies one frequency at a time.
+    equality_pattern = re.compile(
+        r"(?P<prefix>(?:`?[A-Za-z_][A-Za-z0-9_]*`?\s*\.\s*)?"
+        r"`?frequency`?\s*=\s*)"
+        r"""(?P<value>'(?:''|[^'])*'|"(?:""|[^"])*"|[A-Za-z_][A-Za-z0-9_]*)""",
+        flags=re.IGNORECASE,
+    )
+    if len(frequencies) == 1:
+        result, count = equality_pattern.subn(
+            lambda match: match.group("prefix") + sql_string_literal(frequencies[0]),
+            sql,
+            count=1,
+        )
+        if count == 1:
+            return result
+
+    return None
 
 
 def discover_values(engine, sql: str, column: str) -> list[str]:
@@ -377,11 +519,20 @@ def build_workloads(engine, queries: list[str]) -> list[dict]:
             None,
         )
         if alternative_frequency:
-            add(
-                "Dice", "alternate_frequency",
-                replace_frequency_list(queries[3], [alternative_frequency]),
-                f"frequency={alternative_frequency!r}; other original filters",
+            frequency_sql = replace_frequency_list(
+                queries[3], [alternative_frequency]
             )
+            if frequency_sql is not None:
+                add(
+                    "Dice", "alternate_frequency",
+                    frequency_sql,
+                    f"frequency={alternative_frequency!r}; other original filters",
+                )
+            else:
+                print(
+                    "Skipping optional Dice / alternate_frequency workload: "
+                    "the Dice SQL does not contain a recognizable frequency IN/equality filter."
+                )
 
     return workloads
 
