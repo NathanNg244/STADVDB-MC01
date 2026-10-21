@@ -1,6 +1,6 @@
 USE financial_dw;
 
--- Roll Up
+-- Roll Up (Time Hierarchy: Year > Quarter > Month)
  
 SELECT
     IF(GROUPING(d.year_number)    = 1, 'ALL YEARS',    CAST(d.year_number AS CHAR))    AS year,
