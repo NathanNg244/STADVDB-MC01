@@ -18,3 +18,18 @@ GROUP BY d.year_number, d.quarter_number, d.month_number WITH ROLLUP
 ORDER BY GROUPING(d.year_number),    d.year_number,
          GROUPING(d.quarter_number), d.quarter_number,
          GROUPING(d.month_number),   d.month_number;
+
+-- Roll Up (District Hierarchy: Region > District)
+
+SELECT
+    IF(GROUPING(r.region)        = 1, 'ALL REGIONS',   r.region)        AS region,
+    IF(GROUPING(r.district_name) = 1, 'ALL DISTRICTS', r.district_name) AS district,
+    COUNT(*)                                 AS trans_count,
+    COUNT(DISTINCT f.account_key)            AS active_accounts,
+    ROUND(SUM(f.amount), 2)                  AS total_volume,
+    ROUND(AVG(f.amount), 2)                  AS avg_trans_amount
+FROM FactTransaction f
+JOIN DimDistrict r ON r.district_key = f.district_key
+GROUP BY r.region, r.district_name WITH ROLLUP
+ORDER BY GROUPING(r.region), r.region,
+         GROUPING(r.district_name), total_volume DESC;
