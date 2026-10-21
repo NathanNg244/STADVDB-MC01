@@ -50,3 +50,26 @@ WHERE d.year_number = 1997
 GROUP BY r.region, t.type
 HAVING COUNT(*) >= 100
 ORDER BY r.region, total_volume DESC;
+
+-- Dice (Time: 1996-1997; Quarter: 1, 2; Type: Credit, Debit; Region: Prague, South Moravia, North Moravia; Frequency: Weekly)
+
+SELECT d.year_number,
+       d.quarter_number,
+       r.region,
+       a.frequency,
+       t.type,
+       COUNT(*)                AS trans_count,
+       ROUND(SUM(f.amount), 2) AS total_volume
+FROM FactTransaction f
+JOIN DimDate            d ON d.date_key = f.date_key
+JOIN DimDistrict        r ON r.district_key = f.district_key
+JOIN DimAccount         a ON a.account_key = f.account_key
+JOIN DimTransactionType t ON t.transaction_type_key = f.transaction_type_key
+WHERE d.year_number    IN (1996, 1997)                             
+  AND d.quarter_number IN (1, 2)
+  AND r.region         IN ('Prague', 'south Moravia', 'north Moravia') 
+  AND t.type           IN ('Credit', 'Debit (Withdrawal)')         
+  AND a.frequency      IN ('Weekly')    
+GROUP BY d.year_number, d.quarter_number, r.region, a.frequency, t.type
+ORDER BY d.year_number, d.quarter_number, r.region, total_volume DESC;
+
